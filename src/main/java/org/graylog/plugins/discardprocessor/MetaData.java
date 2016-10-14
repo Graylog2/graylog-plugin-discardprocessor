@@ -8,9 +8,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Set;
 
-/**
- * Implement the PluginMetaData interface here.
- */
 public class MetaData implements PluginMetaData {
     private static final String PLUGIN_PROPERTIES = "org.graylog.plugins.discard-large-messages/graylog-plugin.properties";
 
@@ -36,7 +33,7 @@ public class MetaData implements PluginMetaData {
 
     @Override
     public Version getVersion() {
-        return new Version(1, 1, 0, "SNAPSHOT");
+        return new Version(1, 0, 1);
     }
 
     @Override
