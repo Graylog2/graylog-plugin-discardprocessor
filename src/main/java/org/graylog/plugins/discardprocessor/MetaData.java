@@ -36,7 +36,7 @@ public class MetaData implements PluginMetaData {
 
     @Override
     public Version getVersion() {
-        return new Version(1, 0, 0, "SNAPSHOT");
+        return new Version(1, 0, 0);
     }
 
     @Override
