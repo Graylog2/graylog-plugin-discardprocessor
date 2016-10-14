@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/Graylog2/graylog-plugin-discardprocessor.svg?branch=master)](https://travis-ci.org/Graylog2/graylog-plugin-discardprocessor)
 
-__Use this paragraph to enter a description of your plugin.__
+This plugin implements a Graylog `MessageProcessor` to discard messages with a large field. Both the field name and the maximum length are configurable.
 
 **Required Graylog version:** 2.0 and later
 
@@ -16,21 +16,24 @@ and can be configured in your `graylog.conf` file.
 
 Restart `graylog-server` and you are done.
 
-Development
------------
-
-You can improve your development experience for the web interface part of your plugin
-dramatically by making use of hot reloading. To do this, do the following:
-
-* `git clone https://github.com/Graylog2/graylog2-server.git`
-* `cd graylog2-server/graylog2-web-interface`
-* `ln -s $YOURPLUGIN plugin/`
-* `npm install && npm start`
-
 Usage
 -----
 
-__Use this paragraph to document the usage of your plugin__
+Activate/Deactivate the plugin in the `System/Configuration` section of the web interface. Typically you want to run this processor as the first in the chain to prevent large messages ever reaching the more expensive parts of the processing, such as Grok patterns or regular expression extractors.
+
+Configuration
+-------------
+In your `server.conf` file add the following two lines:
+
+```
+# By default the plugin looks at the message field, this name is case sensitive!
+discardprocessor_field = message
+# By default the plugin allows the length to by Long.MAX_VALUE (2^63 - 1). This is the character count, not the byte size.
+discardprocessor_max_length = 10
+
+```
+
+After a server restart the values take effect.
 
 
 Getting started
@@ -47,12 +50,10 @@ This project is using Maven 3 and requires Java 8 or higher.
 Plugin Release
 --------------
 
-We are using the maven release plugin:
-
 ```
-$ mvn release:prepare
-[...]
-$ mvn release:perform
+$ mvn versions:set
+# edit src/main/java/org/graylog/plugins/discardprocessor/MetaData.java to reflect the new version
+$ mvn clean test compile package
 ```
 
-This sets the version numbers, creates a tag and pushes to GitHub. Travis CI will build the release artifacts and upload to GitHub automatically.
+Then tag the release, push, create the release and upload the artifact from target/ to Github.
