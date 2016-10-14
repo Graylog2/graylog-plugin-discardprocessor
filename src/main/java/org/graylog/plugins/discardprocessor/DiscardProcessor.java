@@ -1,16 +1,27 @@
 package org.graylog.plugins.discardprocessor;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import org.graylog2.plugin.IOState;
 import org.graylog2.plugin.Message;
 import org.graylog2.plugin.Messages;
+import org.graylog2.plugin.inputs.MessageInput;
 import org.graylog2.plugin.messageprocessors.MessageProcessor;
+import org.graylog2.shared.inputs.InputRegistry;
+import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import static com.codahale.metrics.MetricRegistry.name;
+
 public class DiscardProcessor implements MessageProcessor {
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(DiscardProcessor.class);
 
     private final String fieldName;
     private final long maxLength;
+    private final Meter discarded;
+    private final InputRegistry inputRegistry;
 
     public static class Descriptor implements MessageProcessor.Descriptor {
         @Override
@@ -26,9 +37,13 @@ public class DiscardProcessor implements MessageProcessor {
 
     @Inject
     public DiscardProcessor(@Named("discardprocessor_field") String fieldName,
-                            @Named("discardprocessor_max_length") long maxLength) {
+                            @Named("discardprocessor_max_length") long maxLength,
+                            MetricRegistry metricRegistry,
+                            InputRegistry inputRegistry) {
         this.fieldName = fieldName;
         this.maxLength = maxLength;
+        discarded = metricRegistry.meter(name(DiscardProcessor.class, "discarded"));
+        this.inputRegistry = inputRegistry;
     }
 
     @Override
@@ -39,7 +54,22 @@ public class DiscardProcessor implements MessageProcessor {
         for (Message message : messages) {
             final Object content = message.getField(fieldName);
             if (content != null && content instanceof String) {
-                if (((String) content).length() > maxLength) {
+                final int length = ((String) content).length();
+                if (length > maxLength) {
+                    if (LOG.isInfoEnabled()) {
+                        final IOState<MessageInput> inputState = inputRegistry.getInputState(message.getSourceInputId());
+                        final String inputName = inputState != null ? inputState.getStoppable().getName() : "unknown";
+                        LOG.info(
+                                "Discarding message {} from {} (received from {} on input {}): Field {} exceeds maximum length: {} (allowed length {})",
+                                message.getId(),
+                                message.getSource(),
+                                (message.getIsSourceInetAddress() ? message.getInetAddress() : "unknown"),
+                                inputName,
+                                fieldName,
+                                length,
+                                maxLength);
+                    }
+                    discarded.mark();
                     message.setFilterOut(true);
                 }
             }

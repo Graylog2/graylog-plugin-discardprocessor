@@ -1,5 +1,6 @@
 package org.graylog.plugins.discardprocessor;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.graylog2.plugin.Message;
@@ -7,14 +8,15 @@ import org.graylog2.plugin.MessageCollection;
 import org.graylog2.plugin.Messages;
 import org.graylog2.plugin.SingletonMessages;
 import org.graylog2.plugin.Tools;
+import org.graylog2.shared.inputs.InputRegistry;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DiscardProcessorTest {
 
-    private DiscardProcessor limitMessageFieldTo100 = new DiscardProcessor("message", 100);
-    private DiscardProcessor limitSomethingFieldTo100 = new DiscardProcessor("something", 100);
+    private DiscardProcessor limitMessageFieldTo100 = new DiscardProcessor("message", 100, new MetricRegistry(), new InputRegistry());
+    private DiscardProcessor limitSomethingFieldTo100 = new DiscardProcessor("something", 100, new MetricRegistry(), new InputRegistry());
 
     @Test
     public void shortMessageNotFiltered() {
