@@ -59,12 +59,14 @@ public class DiscardProcessor implements MessageProcessor {
                     if (LOG.isInfoEnabled()) {
                         final IOState<MessageInput> inputState = inputRegistry.getInputState(message.getSourceInputId());
                         final String inputName = inputState != null ? inputState.getStoppable().getName() : "unknown";
+                        final String inputId = inputState != null ? inputState.getStoppable().getId() : "unknown";
                         LOG.info(
-                                "Discarding message {} from {} (received from {} on input {}): Field {} exceeds maximum length: {} (allowed length {})",
+                                "Discarding message <{}> from <{}> (received on address <{}> on input \"{}\" <{}>): Field {} exceeds maximum length: {} (maximum length {})",
                                 message.getId(),
                                 message.getSource(),
                                 (message.getIsSourceInetAddress() ? message.getInetAddress() : "unknown"),
                                 inputName,
+                                inputId,
                                 fieldName,
                                 length,
                                 maxLength);
