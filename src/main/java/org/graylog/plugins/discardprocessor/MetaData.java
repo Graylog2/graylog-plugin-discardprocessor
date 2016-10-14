@@ -36,7 +36,7 @@ public class MetaData implements PluginMetaData {
 
     @Override
     public Version getVersion() {
-        return Version.fromPluginProperties(getClass(), PLUGIN_PROPERTIES, "version", Version.from(1, 0, 0, "SNAPSHOT"));
+        return new Version(1, 0, 0, "SNAPSHOT");
     }
 
     @Override
@@ -46,7 +46,7 @@ public class MetaData implements PluginMetaData {
 
     @Override
     public Version getRequiredVersion() {
-        return Version.fromPluginProperties(getClass(), PLUGIN_PROPERTIES, "graylog.version", Version.from(2, 0, 0));
+        return new Version(2, 0, 0);
     }
 
     @Override
